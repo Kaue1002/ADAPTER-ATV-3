@@ -1,0 +1,164 @@
+
+XML
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/studentNameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nome Aluno"/>
+
+    <EditText
+        android:id="@+id/studentAreaInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Área de Escolha"/>
+
+    <Button
+        android:id="@+id/insertButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:backgroundTint="#4CE00D"
+        android:text="Inserir" />
+
+    <ListView
+        android:id="@+id/studentListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/studentCountTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 Alunos"
+        android:textSize="18sp"
+        android:layout_gravity="center"/>
+
+    <Button
+        android:id="@+id/clearButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="#C51C16"
+        android:backgroundTint="#BC280F"
+        android:text="ZERAR"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>
+
+
+
+
+
+MAIN
+
+
+
+
+package com.example.studentlist
+
+import android.os.Bundle
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import br.unipar.atvadapter.R
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var studentNameInput: EditText
+    private lateinit var studentAreaInput: EditText
+    private lateinit var insertButton: Button
+    private lateinit var clearButton: Button
+    private lateinit var studentListView: ListView
+    private lateinit var studentCountTextView: TextView
+
+    private val studentList = mutableListOf<String>()
+    private lateinit var adapter: StudentListAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+
+        studentNameInput = findViewById(R.id.studentNameInput)
+        studentAreaInput = findViewById(R.id.studentAreaInput)
+        insertButton = findViewById(R.id.insertButton)
+        clearButton = findViewById(R.id.clearButton)
+        studentListView = findViewById(R.id.studentListView)
+        studentCountTextView = findViewById(R.id.studentCountTextView)
+
+
+        adapter = StudentListAdapter(this, studentList)
+        studentListView.adapter = adapter
+
+
+        insertButton.setOnClickListener {
+            val studentName = studentNameInput.text.toString().trim()
+            val studentArea = studentAreaInput.text.toString().trim()
+
+            if (studentName.isNotEmpty() && studentArea.isNotEmpty()) {
+
+                val studentInfo = "$studentName - $studentArea"
+                studentList.add(studentInfo)
+
+
+                adapter.notifyDataSetChanged()
+
+
+                studentCountTextView.text = "Total de alunos: ${studentList.size}"
+
+
+                studentNameInput.text.clear()
+                studentAreaInput.text.clear()
+            }
+        }
+
+
+        clearButton.setOnClickListener {
+            studentList.clear()
+            adapter.notifyDataSetChanged()
+            studentCountTextView.text = "Total de alunos: 0"
+        }
+    }
+}
+
+
+
+
+
+
+
+ADAPTER
+
+package com.example.studentlist
+
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.TextView
+
+class StudentListAdapter(context: Context, students: List<String>) : ArrayAdapter<String>(context, 0, students) {
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        // Obter o item da lista na posição fornecida
+        val studentEntry = getItem(position)
+
+        // Verificar se o item não é nulo
+        val view = convertView ?: LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false)
+        val textView = view.findViewById<TextView>(android.R.id.text1)
+
+        // Garantir que o item não é nulo antes de definir o texto
+        textView.text = studentEntry ?: "Entrada Inválida"
+
+        return view
+    }
+}
